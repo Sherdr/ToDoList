@@ -19,13 +19,30 @@
 </form>
 
 @section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $('#createTask').on('click', function (e) {
             e.preventDefault();
             $.ajax({
                 type: 'POST',
                 url: '@Url.Action("Create", controller:"Task")',
-                data: $('#createTaskForm').serialize()
+                data: $('#createTaskForm').serialize(),
+                success: function (responce) {
+                    Swal.fire({
+                        title: 'Информация',
+                        text: responce.description,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    })
+                },
+                error: function (responce) {
+                    Swal.fire({
+                        title: 'Информация',
+                        text: responce.responseJSON.description,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    })
+                }
             })
         });
     </script>
