@@ -18,6 +18,7 @@ namespace ToDoList.Service.Implementations {
         }
         public async Task<IBaseResponse<TaskEntity>> Create(CreateTaskViewModel model) {
             try {
+                model.Validate();
                 taskLogger.LogInformation($"Запрос на создание задачи - {model.Name}.");
                 var task = await taskRepository.GetAll()
                     .Where(x => x.Created.Date == DateTime.Today)
@@ -45,6 +46,7 @@ namespace ToDoList.Service.Implementations {
             catch(Exception ex) {
                 taskLogger.LogError(ex, $"[TaskService.Create] - {ex.Message}.");
                 return new BaseResponse<TaskEntity>() {
+                    Description = $"{ex.Message}",
                     StatusCode = StatusCode.InternalServerError
                 };
             }
