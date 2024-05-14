@@ -22,7 +22,7 @@
     <thead>
         <tr>
             <th>Название</th>
-            <th>Сложность</th>
+            <th>Приоритет</th>
             <th>Описание</th>
             <th>Готовность</th>
             <th>Действие</th>
@@ -36,6 +36,7 @@
 @section Scripts{
     <script type="text/javascript" src="https://cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         let dataTable = $('#taskTableId').DataTable({
             info: true,
@@ -44,12 +45,34 @@
             paging: false,
             sorting: false,
             ajax: {
-                type: 'POST',
-                url: '@Url.Action("TaskHandler")',
+                url: "@Url.Action("TaskHandler")",
+                method: 'POST',
                 data: null
+            },
+            columns: [
+                { data: 'name' },
+                { data: 'priority' },
+                { data: 'description' },
+                { data: 'isDone' },
+                {
+                    data: null,
+                    sortable: false,
+                    render: function (data, type) {
+                        return '<button class="btn-success btn-sm center-block">Завершить</button>'
+                    }
+                }
+            ],
+            createdRow: function (nRow, data) {
+                for (var i = 0; i < dataTable.columns().header().lenght - 1; i++) {
+                    $('td', nRow).eq(i).css('cursor', 'pointer');
+                    $('td', nRow).eq(i).on('click', null);
+                }
+                $('td button', nRow).eq(i).on('click', null);
             }
         });
+    </script>
 
+    <script>
         $('#createTask').on('click', function (e) {
             e.preventDefault();
             $.ajax({

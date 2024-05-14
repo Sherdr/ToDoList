@@ -59,9 +59,9 @@ namespace ToDoList.Service.Implementations {
                     .Select(x => new TaskViewModel() {
                         Id = x.ID,
                         Name = x.Name,
+                        Priority = x.Priority.GetDisplayName(),
                         Description = x.Description,
                         IsDone = x.IsDone == true ? "Готова" : "Не готова",
-                        Priority = x.Priority.GetDisplayName(),
                         Created = x.Created.ToLongDateString()
                     })
                     .ToListAsync();
