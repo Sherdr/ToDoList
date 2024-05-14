@@ -25,5 +25,10 @@ namespace ToDoList.Controllers {
                 description = responce.Description
             });
         }
+        [HttpPost]
+        public async Task<IActionResult> TaskHandler() {
+            var responce = await taskService.GetTasks();
+            return Json(new { data = responce.Data });
+        }
     }
 }
