@@ -2,6 +2,7 @@
 using ToDoList.Domain.ViewModels.Task;
 using ToDoList.Service.Interfaces;
 using ToDoList.Domain.Enum;
+using ToDoList.Domain.Filters.Task;
 
 namespace ToDoList.Controllers {
     public class TaskController : Controller {
@@ -26,8 +27,8 @@ namespace ToDoList.Controllers {
             });
         }
         [HttpPost]
-        public async Task<IActionResult> TaskHandler() {
-            var responce = await taskService.GetTasks();
+        public async Task<IActionResult> TaskHandler(TaskFilter filter) {
+            var responce = await taskService.GetTasks(filter);
             return Json(new { data = responce.Data });
         }
     }
