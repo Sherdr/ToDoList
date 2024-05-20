@@ -51,6 +51,13 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+            },
+            buttonsStyling: false
+        });
+
         let dataTable = $('#taskTableId').DataTable({
             info: true,
             serverSide: true,
@@ -76,11 +83,46 @@
                 }
             ],
             createdRow: function (nRow, data) {
+                var handlerComplete = function () {
+                    swalWithBootstrapButtons.fire({
+                        title: "Вы уверены?",
+                        text: "Завершить задачу?",
+                        icon: "warning",
+                        confirmButtonText: "Да",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: 'POST',
+                                url: '@Url.Action("EndTask")',
+                                data: {id: data.id},
+                                success: function (responce) {
+                                    Swal.fire({
+                                        title: 'Информация',
+                                        text: responce.description,
+                                        icon: 'success',
+                                        confirmButtonText: 'OK'
+                                    })
+                                    dataTable.draw();
+                                },
+                                error: function (responce) {
+                                    Swal.fire({
+                                        title: 'Информация',
+                                        text: responce.responseJSON.description,
+                                        icon: 'error',
+                                        confirmButtonText: 'Ясно'
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+
                 for (var i = 0; i < dataTable.columns().header().lenght - 1; i++) {
                     $('td', nRow).eq(i).css('cursor', 'pointer');
                     $('td', nRow).eq(i).on('click', null);
                 }
-                $('td button', nRow).eq(i).on('click', null);
+                $('td button', nRow).on('click', handlerComplete);
             }
         });
 
@@ -118,7 +160,7 @@
                         title: 'Информация',
                         text: responce.responseJSON.description,
                         icon: 'error',
-                        confirmButtonText: 'OK'
+                        confirmButtonText: 'Ясно'
                     })
                 }
             })

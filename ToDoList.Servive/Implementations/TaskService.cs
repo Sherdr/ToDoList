@@ -18,6 +18,7 @@ namespace ToDoList.Service.Implementations {
             taskRepository = repository;
             taskLogger = logger;
         }
+
         public async Task<IBaseResponse<TaskEntity>> Create(CreateTaskViewModel model) {
             try {
                 model.Validate();
@@ -45,7 +46,7 @@ namespace ToDoList.Service.Implementations {
                     StatusCode = StatusCode.OK
                 };
             }
-            catch(Exception ex) {
+            catch (Exception ex) {
                 taskLogger.LogError(ex, $"[TaskService.Create] - {ex.Message}.");
                 return new BaseResponse<TaskEntity>() {
                     Description = $"{ex.Message}",
@@ -54,9 +55,35 @@ namespace ToDoList.Service.Implementations {
             }
         }
 
+        public async Task<IBaseResponse<bool>> EndTask(long id) {
+            try {
+                var task = await taskRepository.GetAll().FirstAsync(x => x.ID == id);
+                if (task == null) {
+                    return new BaseResponse<bool>() {
+                        Description = "Задача не найдена.",
+                        StatusCode = StatusCode.TaskNotFound
+                    };
+                }
+                task.IsDone = true;
+                await taskRepository.Update(task);
+                return new BaseResponse<bool>() {
+                    Description = "Задача заверешена.",
+                    StatusCode = StatusCode.OK
+                };
+            }
+            catch (Exception ex) {
+                taskLogger.LogError(ex, $"[TaskService.EndTask] - {ex.Message}.");
+                return new BaseResponse<bool>() {
+                    Description = $"{ex.Message}.",
+                    StatusCode = StatusCode.InternalServerError
+                };
+            }
+        }
+
         public async Task<IBaseResponse<IEnumerable<TaskViewModel>>> GetTasks(TaskFilter filter) {
             try {
                 var tasks = await taskRepository.GetAll()
+                    .Where(x => !x.IsDone)
                     .WhereIf(!string.IsNullOrWhiteSpace(filter.Name), x => x.Name == filter.Name)
                     .WhereIf(filter.Priority.HasValue, x => x.Priority == filter.Priority)
                     .Select(x => new TaskViewModel() {
@@ -76,7 +103,7 @@ namespace ToDoList.Service.Implementations {
             catch (Exception ex) {
                 taskLogger.LogError(ex, $"[TaskService.Create] - {ex.Message}.");
                 return new BaseResponse<IEnumerable<TaskViewModel>>() {
-                    Description = $"{ex.Message}",
+                    Description = $"{ex.Message}.",
                     StatusCode = StatusCode.InternalServerError
                 };
             }
