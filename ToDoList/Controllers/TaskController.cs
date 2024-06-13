@@ -10,9 +10,11 @@ namespace ToDoList.Controllers {
         public TaskController(ITaskService service) {
             taskService = service;
         }
+
         public IActionResult Index() {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateTaskViewModel model) {
             var responce = await taskService.Create(model);
@@ -25,6 +27,7 @@ namespace ToDoList.Controllers {
                 description = responce.Description
             });
         }
+
         [HttpPost]
         public async Task<IActionResult> TaskHandler(TaskFilter filter) {
             var responce = await taskService.GetTasks(filter);
@@ -42,6 +45,12 @@ namespace ToDoList.Controllers {
             return BadRequest(new {
                 description = responce.Description
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCompletedTasks() {
+            var result = await taskService.GetCompletedTasks();
+            return Json(new { data = result.Data });
         }
     }
 }

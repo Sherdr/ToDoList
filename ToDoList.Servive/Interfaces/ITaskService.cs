@@ -5,6 +5,7 @@ using ToDoList.Domain.ViewModels.Task;
 
 namespace ToDoList.Service.Interfaces {
     public interface ITaskService {
+        Task<IBaseResponse<IEnumerable<TaskViewModel>>> GetCompletedTasks();
         Task<IBaseResponse<TaskEntity>> Create(CreateTaskViewModel model);
         Task<IBaseResponse<IEnumerable<TaskViewModel>>> GetTasks(TaskFilter filter);
         Task<IBaseResponse<bool>> EndTask(long id);

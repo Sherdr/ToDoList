@@ -34,9 +34,13 @@
             <div class="col-md-4 order-md-2 mb-4">
                 <h4 class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted">Выполненные задачи</span>
-                    <span class="badge badge-secondary badge-pill text-muted" id="countOfCompletedTasks"></span>
+                    <span class="badge badge-secondary badge-pill text-muted" id="countOfCompletedTasks">
+
+                    </span>
                 </h4>
-                <ul class="list-group mb-3" id="completedListTasks"></ul>
+                <ul class="list-group mb-3" id="completedListTasks">
+
+                </ul>
                 <form>
                     <div class="card col-md-12">
                         <button type="submit" class="btn btn-secondary">Закончить день</button>
@@ -57,6 +61,40 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* <li class="list-group-item d-flex justify-content-between lh-condensed" style="background-color: #affabf">
+        <div>
+            <h6 class="my-0">Название: ${task.name}</h6>
+            <small class="text-muted">Описание: ${task.description}</small>
+        </div>
+    </li> *@
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetCompletedTasks", "Task")',
+                success: function (data) {
+                    const ulElement = $('#completedListTasks');
+                    for (var i = 0; i < data.data.lenght; i++) {
+                        const task = data.data[i];
+                        ulElement.append(
+                            `
+                                <li class="list-group-item d-flex justify-content-between lh-condensed" style="background-color: #affabf">
+                                    <div>
+                                        <h6 class="my-0" > Название: ${ task.name }</h6>
+                                        <small class= "text-muted" > Описание: ${ task.description }</small>
+                                    </div>
+                                </li>
+                            `
+                        )
+                    }
+                    $('#countOfCompletedTasks').text(data.data.lenght);
+                }
+            })
+        })
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

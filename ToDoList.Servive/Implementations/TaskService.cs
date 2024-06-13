@@ -22,7 +22,7 @@ namespace ToDoList.Service.Implementations {
         public async Task<IBaseResponse<TaskEntity>> Create(CreateTaskViewModel model) {
             try {
                 model.Validate();
-                taskLogger.LogInformation($"Запрос на создание задачи - {model.Name}.");
+                taskLogger.LogInformation($"Запрос на создание задачи: {model.Name}.");
                 var task = await taskRepository.GetAll()
                     .Where(x => x.Created.Date == DateTime.Today)
                     .FirstOrDefaultAsync(x => x.Name == model.Name);
@@ -40,14 +40,14 @@ namespace ToDoList.Service.Implementations {
                     IsDone = false
                 };
                 await taskRepository.Create(task);
-                taskLogger.LogInformation($"Задача создалась - {task.Name}, {task.Created}.");
+                taskLogger.LogInformation($"Задача создалась: {task.Name}, {task.Created}.");
                 return new BaseResponse<TaskEntity>() {
                     Description = "Задача создалась.",
                     StatusCode = StatusCode.OK
                 };
             }
             catch (Exception ex) {
-                taskLogger.LogError(ex, $"[TaskService.Create] - {ex.Message}.");
+                taskLogger.LogError(ex, $"[TaskService.Create]: {ex.Message}.");
                 return new BaseResponse<TaskEntity>() {
                     Description = $"{ex.Message}",
                     StatusCode = StatusCode.InternalServerError
@@ -72,8 +72,34 @@ namespace ToDoList.Service.Implementations {
                 };
             }
             catch (Exception ex) {
-                taskLogger.LogError(ex, $"[TaskService.EndTask] - {ex.Message}.");
+                taskLogger.LogError(ex, $"[TaskService.EndTask]: {ex.Message}.");
                 return new BaseResponse<bool>() {
+                    Description = $"{ex.Message}.",
+                    StatusCode = StatusCode.InternalServerError
+                };
+            }
+        }
+
+        public async Task<IBaseResponse<IEnumerable<TaskViewModel>>> GetCompletedTasks() {
+            try {
+                var tasks = await taskRepository.GetAll()
+                    .Where(x => x.IsDone)
+                    .Where(x => x.Created.Date == DateTime.Today)
+                    .Select(x => new TaskViewModel() {
+                        Id = x.ID,
+                        Name = x.Name,
+                        Description = x.Description.Substring(0, 5),
+                    })
+                    .ToListAsync();
+                return new BaseResponse<IEnumerable<TaskViewModel>>() {
+                    Data = tasks,
+                    StatusCode = StatusCode.OK
+                };
+
+            }
+            catch (Exception ex) {
+                taskLogger.LogError(ex, $"[TaskService.GetCompletedTasks]: {ex.Message}.");
+                return new BaseResponse<IEnumerable<TaskViewModel>>() {
                     Description = $"{ex.Message}.",
                     StatusCode = StatusCode.InternalServerError
                 };
@@ -101,7 +127,7 @@ namespace ToDoList.Service.Implementations {
                 };
             }
             catch (Exception ex) {
-                taskLogger.LogError(ex, $"[TaskService.Create] - {ex.Message}.");
+                taskLogger.LogError(ex, $"[TaskService.GetTasks]: {ex.Message}.");
                 return new BaseResponse<IEnumerable<TaskViewModel>>() {
                     Description = $"{ex.Message}.",
                     StatusCode = StatusCode.InternalServerError
